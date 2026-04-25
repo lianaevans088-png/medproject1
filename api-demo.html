@@ -3,185 +3,870 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClinFlow AI — Backend Demo</title>
+  <title>ClinFlow AI — Demo Platform</title>
+  <meta name="description" content="Рабочее демо ClinFlow AI: связь GitHub Pages с backend на Render, AI-черновик приема, МКБ-10 и утверждение врачом." />
 
   <style>
+    :root {
+      --bg: #07111f;
+      --bg2: #0b1728;
+      --panel: rgba(255, 255, 255, 0.07);
+      --panel2: rgba(255, 255, 255, 0.11);
+      --line: rgba(255, 255, 255, 0.14);
+      --text: #eef7ff;
+      --muted: #9fb3c9;
+      --blue: #37d6ff;
+      --green: #44e6a0;
+      --yellow: #ffd166;
+      --red: #ff6b6b;
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: #07111f;
-      color: #eef7ff;
-      font-family: Arial, sans-serif;
-      padding: 40px;
+      min-height: 100vh;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 6%, rgba(55, 214, 255, 0.25), transparent 28rem),
+        radial-gradient(circle at 90% 12%, rgba(68, 230, 160, 0.18), transparent 30rem),
+        linear-gradient(180deg, #07111f 0%, #091827 100%);
     }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .card {
-      border: 1px solid rgba(255,255,255,.15);
-      background: rgba(255,255,255,.07);
-      border-radius: 24px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 42px;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    p {
-      color: #a8b8cc;
-      line-height: 1.6;
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
     button {
-      border: none;
-      border-radius: 999px;
-      padding: 14px 20px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-right: 10px;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #37d6ff, #44e6a0);
+      font-family: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: rgba(7, 17, 31, 0.78);
+      backdrop-filter: blur(18px);
+      padding: 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue), var(--green));
       color: #06111e;
+      font-weight: 1000;
+      box-shadow: 0 16px 44px rgba(55, 214, 255, 0.25);
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 19px;
+      letter-spacing: -0.04em;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+
+    .nav-item {
+      border: 1px solid transparent;
+      border-radius: 15px;
+      padding: 12px 13px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-item.active {
+      border-color: rgba(55, 214, 255, 0.24);
+      background: rgba(55, 214, 255, 0.12);
+      color: #eaffff;
+    }
+
+    .sidebar-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .sidebar-card b {
+      display: block;
+      margin-bottom: 8px;
+      color: #eaffff;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .main {
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .topbar h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -0.06em;
+    }
+
+    .topbar p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(68, 230, 160, 0.25);
+      color: #a9ffd5;
+      background: rgba(68, 230, 160, 0.1);
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 6px rgba(68, 230, 160, 0.12);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.045);
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .card-head h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.035em;
+    }
+
+    .card-head span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .patient-photo {
+      position: relative;
+      height: 220px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin-bottom: 16px;
+      background: #0b1728;
+    }
+
+    .patient-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.72) saturate(0.96);
+      display: block;
+    }
+
+    .patient-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent, rgba(7, 17, 31, 0.86));
+    }
+
+    .patient-photo-content {
+      position: absolute;
+      inset: auto 16px 16px 16px;
+      z-index: 2;
+    }
+
+    .patient-photo-content h3 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: -0.04em;
+    }
+
+    .patient-photo-content p {
+      margin: 0;
+      color: #c7d8ed;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .fact {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .fact b {
+      display: block;
+      color: var(--blue);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .fact span {
+      color: #d9eaff;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: grid;
+      gap: 11px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: 0.2s ease;
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      color: #06111e;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      box-shadow: 0 18px 46px rgba(55, 214, 255, 0.2);
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--line);
+    }
+
+    .btn-warning {
+      color: #241800;
+      background: linear-gradient(135deg, #ffd166, #ffef9a);
+    }
+
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .step.active {
+      border-color: rgba(55, 214, 255, 0.34);
+      background: rgba(55, 214, 255, 0.1);
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 5px;
+      letter-spacing: -0.02em;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .result-area {
+      display: grid;
+      gap: 13px;
+    }
+
+    .empty-state {
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      min-height: 410px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 22px;
+      letter-spacing: -0.04em;
+      margin: 12px 0 8px;
+    }
+
+    .section-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.045);
+      padding: 15px;
+      animation: fadeIn 0.35s ease both;
+    }
+
+    .section-box h3 {
+      margin: 0 0 9px;
+      color: var(--blue);
+      letter-spacing: -0.03em;
+    }
+
+    .section-box p,
+    .section-box li {
+      margin-top: 0;
+      color: #dcecff;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .section-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .json-toggle {
+      border: none;
+      color: var(--blue);
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      font-weight: 850;
+      margin-top: 8px;
     }
 
     pre {
       white-space: pre-wrap;
+      word-break: break-word;
       background: #020817;
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 18px;
-      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 14px;
       overflow-x: auto;
       color: #dcecff;
+      font-size: 12px;
+      margin: 12px 0 0;
+      display: none;
     }
 
-    .status {
-      display: inline-block;
-      padding: 8px 12px;
+    .badge {
+      display: inline-flex;
       border-radius: 999px;
-      background: rgba(255,209,102,.12);
-      color: #ffe2a6;
-      font-weight: 800;
-      margin-bottom: 16px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 850;
+      border: 1px solid var(--line);
+      color: #d8ebff;
+      background: rgba(255, 255, 255, 0.05);
     }
 
-    .status.ok {
-      background: rgba(68,230,160,.14);
+    .badge.warn {
+      color: #ffe2a6;
+      border-color: rgba(255, 209, 102, 0.28);
+      background: rgba(255, 209, 102, 0.1);
+    }
+
+    .badge.ok {
       color: #a9ffd5;
+      border-color: rgba(68, 230, 160, 0.28);
+      background: rgba(68, 230, 160, 0.1);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      z-index: 100;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7, 17, 31, 0.86);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      padding: 13px 18px;
+      color: #d9eaff;
+      display: none;
+      max-width: min(720px, calc(100% - 28px));
+      text-align: center;
+    }
+
+    .back-link {
+      display: inline-flex;
+      margin-top: 16px;
+      color: var(--blue);
+      font-weight: 850;
+      font-size: 14px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main {
+        padding: 18px;
+      }
+
+      .facts,
+      .workflow-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .card-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>ClinFlow AI — Backend Demo</h1>
-    <p>
-      Эта страница проверяет связь GitHub Pages с backend на Render.
-    </p>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <div>
+          <strong>ClinFlow AI</strong>
+          <span>Demo Platform</span>
+        </div>
+      </div>
 
-    <div class="card">
-      <h2>1. Проверка backend</h2>
-      <p>Нажми кнопку. Если backend работает, появится ответ от Render.</p>
-      <button onclick="checkBackend()">Проверить backend</button>
-      <pre id="backendResult">Пока не проверяли</pre>
-    </div>
+      <div class="nav-list">
+        <div class="nav-item active">🩺 Прием врача</div>
+        <div class="nav-item">👤 Пациент</div>
+        <div class="nav-item">🎙 Диктовка</div>
+        <div class="nav-item">🧠 AI-черновик</div>
+        <div class="nav-item">🏷 МКБ-10</div>
+        <div class="nav-item">📄 Документы</div>
+        <div class="nav-item">🧾 Audit trail</div>
+      </div>
 
-    <div class="card">
-      <h2>2. Получить демо-пациентов</h2>
-      <p>Проверяем endpoint GET /patients.</p>
-      <button onclick="getPatients()">Получить пациентов</button>
-      <pre id="patientsResult">Пока не загружали</pre>
-    </div>
+      <div class="sidebar-card">
+        <b>Backend</b>
+        <p>Демо обращается к API на Render: <br>https://medproject1.onrender.com</p>
+      </div>
 
-    <div class="card">
-      <h2>3. Сгенерировать демо-прием</h2>
-      <p>
-        Проверяем endpoint POST /ai/demo-visit.
-        Backend вернет transcript, AI-черновик, МКБ-10 и инструкцию пациенту.
-      </p>
-      <button onclick="generateDemoVisit()">Сгенерировать демо-прием</button>
-      <button onclick="approveVisit()">Утвердить врачом</button>
+      <a class="back-link" href="index.html">← Вернуться на лендинг</a>
+    </aside>
 
-      <div id="approvalStatus" class="status">Ожидает генерации</div>
-      <pre id="demoResult">Пока демо-прием не создан</pre>
-    </div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>Рабочее демо приема врача</h1>
+          <p>GitHub Pages → Render backend → AI-черновик → МКБ-10 → инструкция пациенту → ручное утверждение врачом.</p>
+        </div>
+        <div class="status-pill" id="backendStatus"><span class="status-dot"></span> backend не проверен</div>
+      </div>
+
+      <div class="grid">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Пациент и управление демо</h2>
+              <span>Демо-данные, без реальных пациентов</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="patient-photo">
+              <img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=1200&q=80" alt="Врач и пациент на консультации">
+              <div class="patient-photo-content">
+                <h3>Иванов Иван Иванович</h3>
+                <p>Демо-пациент · терапевтический прием · жалобы на кашель и температуру</p>
+              </div>
+            </div>
+
+            <div class="facts">
+              <div class="fact"><b>Возраст</b><span>39 лет</span></div>
+              <div class="fact"><b>Тип визита</b><span>Первичный / демо</span></div>
+              <div class="fact"><b>Жалобы</b><span>Кашель, температура, слабость</span></div>
+              <div class="fact"><b>Статус</b><span id="visitStatusText">Визит не создан</span></div>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-secondary" id="checkBackendBtn" type="button">1. Проверить backend</button>
+              <button class="btn btn-secondary" id="loadPatientsBtn" type="button">2. Загрузить демо-пациента</button>
+              <button class="btn btn-primary" id="generateDemoBtn" type="button">3. Сгенерировать AI-прием</button>
+              <button class="btn btn-warning" id="approveBtn" type="button">4. Утвердить врачом</button>
+              <button class="btn btn-secondary" id="resetBtn" type="button">Сбросить демо</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2>Encounter workspace</h2>
+              <span>Transcript → AI draft → ICD-10 → Post-Visit</span>
+            </div>
+            <span class="badge warn" id="approvalBadge">Ожидает генерации</span>
+          </div>
+
+          <div class="card-body">
+            <div class="workflow-steps">
+              <div class="step active" id="step1"><b>Pre-Visit</b><span>загрузка пациента и контекста</span></div>
+              <div class="step" id="step2"><b>Encounter</b><span>AI-черновик приема</span></div>
+              <div class="step" id="step3"><b>Post-Visit</b><span>документы и утверждение</span></div>
+            </div>
+
+            <div class="result-area" id="resultArea">
+              <div class="empty-state">
+                <div>
+                  <div style="font-size: 46px;">🩺</div>
+                  <strong>Демо еще не запущено</strong>
+                  <p>Нажмите “Проверить backend”, затем “Сгенерировать AI-прием”.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
     const API_URL = "https://medproject1.onrender.com";
 
-    async function checkBackend() {
-      const block = document.getElementById("backendResult");
-      block.textContent = "Загружаю...";
+    const backendStatus = document.getElementById("backendStatus");
+    const approvalBadge = document.getElementById("approvalBadge");
+    const visitStatusText = document.getElementById("visitStatusText");
+    const resultArea = document.getElementById("resultArea");
+    const toast = document.getElementById("toast");
 
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const step3 = document.getElementById("step3");
+
+    let lastDemoData = null;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 3200);
+    }
+
+    function setSteps(stage) {
+      step1.classList.toggle("active", stage >= 1);
+      step2.classList.toggle("active", stage >= 2);
+      step3.classList.toggle("active", stage >= 3);
+    }
+
+    function showRawJson(button, id) {
+      const block = document.getElementById(id);
+      const isVisible = block.style.display === "block";
+      block.style.display = isVisible ? "none" : "block";
+      button.textContent = isVisible ? "Показать raw JSON" : "Скрыть raw JSON";
+    }
+
+    async function checkBackend() {
+      backendStatus.innerHTML = '<span class="status-dot"></span> проверяю backend...';
       try {
         const response = await fetch(`${API_URL}/`);
         const data = await response.json();
-        block.textContent = JSON.stringify(data, null, 2);
+        backendStatus.innerHTML = '<span class="status-dot"></span> backend работает';
+        resultArea.innerHTML = `
+          <div class="section-box">
+            <h3>Backend connection</h3>
+            <p>Render API отвечает. Связка GitHub Pages → Render работает.</p>
+            <button class="json-toggle" onclick="showRawJson(this, 'backendJson')">Показать raw JSON</button>
+            <pre id="backendJson">${JSON.stringify(data, null, 2)}</pre>
+          </div>
+        `;
+        visitStatusText.textContent = "Backend проверен";
+        approvalBadge.textContent = "Backend online";
+        approvalBadge.className = "badge ok";
+        setSteps(1);
       } catch (error) {
-        block.textContent = "Ошибка связи с backend: " + error.message;
+        backendStatus.innerHTML = '<span class="status-dot"></span> backend недоступен';
+        resultArea.innerHTML = `
+          <div class="section-box">
+            <h3>Ошибка backend</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+        showToast("Backend не ответил. Проверьте Render-сервис.");
       }
     }
 
-    async function getPatients() {
-      const block = document.getElementById("patientsResult");
-      block.textContent = "Загружаю...";
+    async function loadPatients() {
+      resultArea.innerHTML = `
+        <div class="section-box">
+          <h3>Загрузка пациента</h3>
+          <p>Запрашиваю GET /patients...</p>
+        </div>
+      `;
 
       try {
         const response = await fetch(`${API_URL}/patients`);
         const data = await response.json();
-        block.textContent = JSON.stringify(data, null, 2);
+        const patient = Array.isArray(data) ? data[0] : data;
+
+        resultArea.innerHTML = `
+          <div class="section-box">
+            <h3>Демо-пациент загружен</h3>
+            <p><b>ФИО:</b> ${patient.full_name || "Иванов Иван Иванович"}</p>
+            <p><b>Дата рождения:</b> ${patient.birth_date || "1985-04-12"}</p>
+            <p><b>Сводка:</b> ${patient.summary || "Демо-пациент для MVP"}</p>
+            <button class="json-toggle" onclick="showRawJson(this, 'patientsJson')">Показать raw JSON</button>
+            <pre id="patientsJson">${JSON.stringify(data, null, 2)}</pre>
+          </div>
+        `;
+
+        visitStatusText.textContent = "Пациент загружен";
+        approvalBadge.textContent = "Pre-Visit готов";
+        approvalBadge.className = "badge ok";
+        setSteps(1);
       } catch (error) {
-        block.textContent = "Ошибка получения пациентов: " + error.message;
+        resultArea.innerHTML = `
+          <div class="section-box">
+            <h3>Ошибка загрузки пациента</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
       }
     }
 
-    async function generateDemoVisit() {
-      const block = document.getElementById("demoResult");
-      const status = document.getElementById("approvalStatus");
+    function renderDemo(data) {
+      const aiDraft = data.ai_draft || {};
+      const diagnosis = Array.isArray(data.icd10_suggestions) ? data.icd10_suggestions[0] : null;
 
-      block.textContent = "Генерирую демо-прием...";
-      status.textContent = "AI-черновик создается";
-      status.className = "status";
+      resultArea.innerHTML = `
+        <div class="section-box">
+          <h3>1. Исходная речь / transcript</h3>
+          <p>${data.transcript || "Нет transcript"}</p>
+        </div>
+
+        <div class="section-box">
+          <h3>2. AI-черновик медицинской записи</h3>
+          <ul>
+            <li><b>Жалобы:</b> ${aiDraft.complaints || "—"}</li>
+            <li><b>Анамнез:</b> ${aiDraft.anamnesis || "—"}</li>
+            <li><b>Объективный статус:</b> ${aiDraft.objective_status || "—"}</li>
+            <li><b>Оценка:</b> ${aiDraft.assessment || "—"}</li>
+            <li><b>План:</b> ${aiDraft.plan || "—"}</li>
+          </ul>
+        </div>
+
+        <div class="section-box">
+          <h3>3. Подсказка МКБ-10</h3>
+          <p><b>${diagnosis ? diagnosis.code : "—"}</b> — ${diagnosis ? diagnosis.title : "Нет подсказки"}</p>
+          <p>${diagnosis ? diagnosis.note : ""}</p>
+        </div>
+
+        <div class="section-box">
+          <h3>4. Инструкция пациенту</h3>
+          <p>${data.patient_instruction || "Нет инструкции"}</p>
+        </div>
+
+        <div class="section-box">
+          <h3>5. Human-in-the-loop</h3>
+          <p id="approvalText">Статус: AI-черновик ожидает ручного утверждения врачом.</p>
+          <span class="badge warn">AI draft · не финальный документ</span>
+          <button class="json-toggle" onclick="showRawJson(this, 'demoJson')">Показать raw JSON</button>
+          <pre id="demoJson">${JSON.stringify(data, null, 2)}</pre>
+        </div>
+      `;
+    }
+
+    async function generateDemoVisit() {
+      resultArea.innerHTML = `
+        <div class="section-box">
+          <h3>Генерация AI-приема</h3>
+          <p>Запрашиваю POST /ai/demo-visit на backend Render...</p>
+        </div>
+      `;
+
+      approvalBadge.textContent = "AI-черновик создается";
+      approvalBadge.className = "badge warn";
+      visitStatusText.textContent = "Генерация AI-черновика";
+      setSteps(2);
 
       try {
-        const response = await fetch(`${API_URL}/ai/demo-visit`, {
-          method: "POST"
-        });
-
+        const response = await fetch(`${API_URL}/ai/demo-visit`, { method: "POST" });
         const data = await response.json();
-
-        const readableResult = {
-          transcript: data.transcript,
-          ai_draft: data.ai_draft,
-          icd10_suggestions: data.icd10_suggestions,
-          patient_instruction: data.patient_instruction,
-          human_review_required: data.human_review_required,
-          status: "Ожидает ручного утверждения врачом"
-        };
-
-        block.textContent = JSON.stringify(readableResult, null, 2);
-        status.textContent = "Ожидает утверждения врачом";
-        status.className = "status";
+        lastDemoData = data;
+        renderDemo(data);
+        approvalBadge.textContent = "Ожидает утверждения врачом";
+        approvalBadge.className = "badge warn";
+        visitStatusText.textContent = "AI-черновик готов";
+        showToast("AI-черновик получен с backend Render.");
       } catch (error) {
-        block.textContent = "Ошибка генерации демо-приема: " + error.message;
-        status.textContent = "Ошибка";
+        resultArea.innerHTML = `
+          <div class="section-box">
+            <h3>Ошибка генерации</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+        showToast("Ошибка связи с backend.");
       }
     }
 
     function approveVisit() {
-      const status = document.getElementById("approvalStatus");
-      status.textContent = "Финальная версия утверждена врачом";
-      status.className = "status ok";
+      if (!lastDemoData) {
+        showToast("Сначала сгенерируйте AI-прием.");
+        return;
+      }
+
+      approvalBadge.textContent = "Финальная версия утверждена врачом";
+      approvalBadge.className = "badge ok";
+      visitStatusText.textContent = "Утвержден врачом";
+      setSteps(3);
+
+      const approvalText = document.getElementById("approvalText");
+      if (approvalText) {
+        approvalText.textContent = "Статус: финальная версия утверждена врачом. Документ готов к сохранению в карте пациента.";
+      }
+
+      showToast("Финальная версия утверждена врачом.");
     }
+
+    function resetDemo() {
+      lastDemoData = null;
+      approvalBadge.textContent = "Ожидает генерации";
+      approvalBadge.className = "badge warn";
+      visitStatusText.textContent = "Визит не создан";
+      backendStatus.innerHTML = '<span class="status-dot"></span> backend не проверен';
+      setSteps(1);
+
+      resultArea.innerHTML = `
+        <div class="empty-state">
+          <div>
+            <div style="font-size: 46px;">🩺</div>
+            <strong>Демо сброшено</strong>
+            <p>Нажмите “Проверить backend”, затем “Сгенерировать AI-прием”.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById("checkBackendBtn").addEventListener("click", checkBackend);
+    document.getElementById("loadPatientsBtn").addEventListener("click", loadPatients);
+    document.getElementById("generateDemoBtn").addEventListener("click", generateDemoVisit);
+    document.getElementById("approveBtn").addEventListener("click", approveVisit);
+    document.getElementById("resetBtn").addEventListener("click", resetDemo);
   </script>
 </body>
 </html>
