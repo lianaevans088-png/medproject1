@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClinFlow AI — Backend Demo</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #07111f;
+      color: #eef7ff;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.07);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    p {
+      color: #a8b8cc;
+      line-height: 1.6;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #37d6ff, #44e6a0);
+      color: #06111e;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: #020817;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 18px;
+      padding: 18px;
+      overflow-x: auto;
+      color: #dcecff;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,209,102,.12);
+      color: #ffe2a6;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .status.ok {
+      background: rgba(68,230,160,.14);
+      color: #a9ffd5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>ClinFlow AI — Backend Demo</h1>
+    <p>
+      Эта страница проверяет связь GitHub Pages с backend на Render.
+    </p>
+
+    <div class="card">
+      <h2>1. Проверка backend</h2>
+      <p>Нажми кнопку. Если backend работает, появится ответ от Render.</p>
+      <button onclick="checkBackend()">Проверить backend</button>
+      <pre id="backendResult">Пока не проверяли</pre>
+    </div>
+
+    <div class="card">
+      <h2>2. Получить демо-пациентов</h2>
+      <p>Проверяем endpoint GET /patients.</p>
+      <button onclick="getPatients()">Получить пациентов</button>
+      <pre id="patientsResult">Пока не загружали</pre>
+    </div>
+
+    <div class="card">
+      <h2>3. Сгенерировать демо-прием</h2>
+      <p>
+        Проверяем endpoint POST /ai/demo-visit.
+        Backend вернет transcript, AI-черновик, МКБ-10 и инструкцию пациенту.
+      </p>
+      <button onclick="generateDemoVisit()">Сгенерировать демо-прием</button>
+      <button onclick="approveVisit()">Утвердить врачом</button>
+
+      <div id="approvalStatus" class="status">Ожидает генерации</div>
+      <pre id="demoResult">Пока демо-прием не создан</pre>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://medproject1.onrender.com";
+
+    async function checkBackend() {
+      const block = document.getElementById("backendResult");
+      block.textContent = "Загружаю...";
+
+      try {
+        const response = await fetch(`${API_URL}/`);
+        const data = await response.json();
+        block.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        block.textContent = "Ошибка связи с backend: " + error.message;
+      }
+    }
+
+    async function getPatients() {
+      const block = document.getElementById("patientsResult");
+      block.textContent = "Загружаю...";
+
+      try {
+        const response = await fetch(`${API_URL}/patients`);
+        const data = await response.json();
+        block.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        block.textContent = "Ошибка получения пациентов: " + error.message;
+      }
+    }
+
+    async function generateDemoVisit() {
+      const block = document.getElementById("demoResult");
+      const status = document.getElementById("approvalStatus");
+
+      block.textContent = "Генерирую демо-прием...";
+      status.textContent = "AI-черновик создается";
+      status.className = "status";
+
+      try {
+        const response = await fetch(`${API_URL}/ai/demo-visit`, {
+          method: "POST"
+        });
+
+        const data = await response.json();
+
+        const readableResult = {
+          transcript: data.transcript,
+          ai_draft: data.ai_draft,
+          icd10_suggestions: data.icd10_suggestions,
+          patient_instruction: data.patient_instruction,
+          human_review_required: data.human_review_required,
+          status: "Ожидает ручного утверждения врачом"
+        };
+
+        block.textContent = JSON.stringify(readableResult, null, 2);
+        status.textContent = "Ожидает утверждения врачом";
+        status.className = "status";
+      } catch (error) {
+        block.textContent = "Ошибка генерации демо-приема: " + error.message;
+        status.textContent = "Ошибка";
+      }
+    }
+
+    function approveVisit() {
+      const status = document.getElementById("approvalStatus");
+      status.textContent = "Финальная версия утверждена врачом";
+      status.className = "status ok";
+    }
+  </script>
+</body>
+</html>
