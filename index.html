@@ -3,995 +3,246 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClinFlow AI — AI-платформа для клинического документооборота</title>
-  <meta name="description" content="ClinFlow AI — AI clinical workflow assistant для врачей и клиник РФ." />
-
+  <title>ClinFlow AI — будущее клинического приема</title>
+  <meta name="description" content="ClinFlow AI — AI-ассистент для врачей и клиник: Pre-Visit, Encounter, Post-Visit, AI-черновики, МКБ-10, документы и ручное утверждение врачом." />
   <style>
     :root {
-      --bg: #07111f;
-      --card: rgba(255,255,255,.08);
-      --card2: rgba(255,255,255,.12);
-      --line: rgba(255,255,255,.16);
-      --text: #eef7ff;
-      --muted: #a8b8cc;
-      --blue: #37d6ff;
-      --green: #44e6a0;
-      --yellow: #ffd166;
-      --shadow: 0 28px 90px rgba(0,0,0,.38);
-      --radius: 28px;
+      --bg: #f5f1e8;
+      --paper: #fffaf0;
+      --ink: #171717;
+      --muted: #6c665d;
+      --line: rgba(23,23,23,.12);
+      --dark: #0b111b;
+      --dark2: #101927;
+      --blue: #18a8ff;
+      --green: #1fc985;
+      --orange: #ff7a1a;
+      --gold: #f3c35b;
+      --red: #ef4444;
+      --radius: 30px;
+      --radius2: 20px;
+      --shadow: 0 26px 90px rgba(15, 23, 42, .18);
       --max: 1180px;
     }
 
     * { box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
       background:
-        radial-gradient(circle at 10% 5%, rgba(55,214,255,.25), transparent 28rem),
-        radial-gradient(circle at 90% 10%, rgba(68,230,160,.18), transparent 30rem),
-        linear-gradient(180deg, #07111f 0%, #0b1728 55%, #07111f 100%);
-      color: var(--text);
+        radial-gradient(circle at top left, rgba(24,168,255,.14), transparent 30rem),
+        radial-gradient(circle at 90% 8%, rgba(31,201,133,.12), transparent 30rem),
+        var(--bg);
     }
 
+    body.locked { overflow: hidden; }
     a { color: inherit; text-decoration: none; }
-
-    .container {
-      width: min(var(--max), calc(100% - 40px));
-      margin: 0 auto;
-    }
+    img { max-width: 100%; display: block; }
+    button, input, textarea, select { font-family: inherit; }
+    .container { width: min(var(--max), calc(100% - 40px)); margin: 0 auto; }
 
     .nav {
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 100;
+      background: rgba(245,241,232,.82);
       backdrop-filter: blur(18px);
-      background: rgba(7,17,31,.78);
       border-bottom: 1px solid var(--line);
     }
-
     .nav-inner {
-      min-height: 76px;
+      height: 76px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 22px;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 21px;
-      font-weight: 900;
-      letter-spacing: -.04em;
-    }
-
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 950; letter-spacing: -.04em; font-size: 20px; }
     .brand-mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 15px;
-      display: grid;
-      place-items: center;
-      color: #07111f;
-      background: linear-gradient(135deg, var(--blue), var(--green));
-      box-shadow: 0 18px 45px rgba(55,214,255,.24);
+      width: 42px; height: 42px; border-radius: 15px;
+      background: linear-gradient(135deg, var(--dark), #21314b);
+      color: #fff;
+      display: grid; place-items: center;
+      box-shadow: 0 14px 32px rgba(15,23,42,.18);
     }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .nav-links a:hover { color: var(--text); }
+    .nav-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 14px; font-weight: 650; }
+    .nav-links a:hover { color: var(--ink); }
 
     .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid transparent;
-      border-radius: 999px;
-      padding: 14px 21px;
-      font-weight: 850;
-      cursor: pointer;
-      transition: .2s ease;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      border: 1px solid transparent; border-radius: 999px;
+      padding: 14px 20px; font-weight: 900; cursor: pointer;
+      transition: .22s ease; white-space: nowrap;
     }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-dark { background: var(--dark); color: #fff; box-shadow: 0 18px 44px rgba(15,23,42,.18); }
+    .btn-light { background: rgba(255,255,255,.6); color: var(--ink); border-color: var(--line); }
+    .btn-green { background: linear-gradient(135deg, var(--green), #78e9b8); color: #07111f; }
+    .btn-blue { background: linear-gradient(135deg, var(--blue), #8ddcff); color: #07111f; }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--blue), var(--green));
-      color: #06111e;
-      box-shadow: 0 20px 55px rgba(55,214,255,.25);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      border-color: var(--line);
-      background: rgba(255,255,255,.07);
-      color: var(--text);
-    }
-
-    .hero {
-      padding: 88px 0 44px;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.02fr .98fr;
-      gap: 44px;
-      align-items: center;
-    }
-
+    .hero { padding: 70px 0 32px; }
+    .hero-grid { display: grid; grid-template-columns: 1.03fr .97fr; gap: 42px; align-items: center; }
     .eyebrow {
-      display: inline-flex;
-      gap: 10px;
-      align-items: center;
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      color: #dff7ff;
-      font-size: 13px;
-      font-weight: 850;
-      margin-bottom: 20px;
-    }
-
-    .pulse {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 0 7px rgba(68,230,160,.12);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(42px, 6vw, 76px);
-      line-height: .95;
-      letter-spacing: -.075em;
-    }
-
-    .gradient {
-      background: linear-gradient(135deg, #fff 0%, #c8f2ff 50%, #96ffd0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p {
-      color: #c7d8ed;
-      font-size: 20px;
-      line-height: 1.65;
-      margin: 24px 0 0;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 32px;
-    }
-
-    .pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    .pill {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 9px 12px;
-      color: #d1e3f6;
-      background: rgba(255,255,255,.055);
-      font-size: 13px;
-    }
-
-    .photo-hero {
-      position: relative;
-      min-height: 560px;
-      border: 1px solid var(--line);
-      border-radius: 36px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      background: #0b1728;
-    }
-
-    .photo-hero img {
-      width: 100%;
-      height: 100%;
-      min-height: 560px;
-      object-fit: cover;
-      display: block;
-      filter: brightness(.68) saturate(1.02);
-    }
-
-    .photo-hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(7,17,31,.05), rgba(7,17,31,.92)),
-        radial-gradient(circle at 20% 20%, rgba(55,214,255,.22), transparent 28rem);
-    }
-
-    .hero-dashboard {
-      position: absolute;
-      z-index: 2;
-      left: 22px;
-      right: 22px;
-      bottom: 22px;
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 24px;
-      background: rgba(7,17,31,.72);
-      backdrop-filter: blur(16px);
-      padding: 18px;
-    }
-
-    .dashboard-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
-      margin-bottom: 14px;
-    }
-
-    .dashboard-top h3 {
-      margin: 0 0 5px;
-      font-size: 20px;
-    }
-
-    .dashboard-top span {
-      display: inline-flex;
-      border: 1px solid rgba(255,209,102,.35);
-      color: #ffe2a6;
-      background: rgba(255,209,102,.11);
-      border-radius: 999px;
-      padding: 7px 10px;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .dashboard-top p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .note {
-      display: grid;
-      gap: 8px;
-      border: 1px solid rgba(255,255,255,.13);
-      border-radius: 17px;
-      padding: 14px;
-      background: rgba(0,0,0,.18);
-    }
-
-    .note-row {
-      display: grid;
-      grid-template-columns: 105px 1fr;
-      gap: 10px;
-      color: #dcecff;
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .note-row b {
-      color: var(--blue);
-    }
-
-    .soundwave {
-      height: 42px;
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 14px;
-      background: rgba(255,255,255,.05);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 0 13px;
-      margin: 12px 0;
-    }
-
-    .bar {
-      width: 5px;
-      border-radius: 99px;
-      background: linear-gradient(180deg, var(--blue), var(--green));
-      animation: wave 1.1s infinite ease-in-out alternate;
-    }
-
-    .bar:nth-child(1){height:12px}.bar:nth-child(2){height:25px}.bar:nth-child(3){height:16px}.bar:nth-child(4){height:32px}.bar:nth-child(5){height:22px}.bar:nth-child(6){height:29px}.bar:nth-child(7){height:14px}.bar:nth-child(8){height:26px}.bar:nth-child(9){height:20px}.bar:nth-child(10){height:30px}
-
-    @keyframes wave {
-      from { transform: scaleY(.75); opacity: .65; }
-      to { transform: scaleY(1.18); opacity: 1; }
-    }
-
-    .section {
-      padding: 68px 0;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 28px;
-      margin-bottom: 30px;
-    }
-
-    .kicker {
-      color: var(--blue);
-      text-transform: uppercase;
-      letter-spacing: .09em;
-      font-size: 12px;
-      font-weight: 950;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: clamp(32px, 4vw, 52px);
-      line-height: 1.05;
-      letter-spacing: -.06em;
-    }
-
-    .section-desc {
-      color: var(--muted);
-      line-height: 1.65;
-      font-size: 17px;
-      max-width: 580px;
-      margin: 0;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-
-    .stat {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(255,255,255,.06);
-      padding: 22px;
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 32px;
-      letter-spacing: -.05em;
-      margin-bottom: 5px;
-    }
-
-    .stat span {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .cards-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: var(--card);
-      padding: 24px;
-      transition: .2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-3px);
-      background: var(--card2);
-      border-color: rgba(55,214,255,.32);
-    }
-
-    .icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 17px;
-      display: grid;
-      place-items: center;
-      background: rgba(55,214,255,.13);
-      margin-bottom: 18px;
-      font-size: 22px;
-    }
-
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 21px;
-      letter-spacing: -.035em;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.65;
-      font-size: 15px;
-    }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 18px;
-      align-items: stretch;
-    }
-
-    .photo-card {
-      position: relative;
-      min-height: 390px;
-      border: 1px solid var(--line);
-      border-radius: 30px;
-      overflow: hidden;
-      background: #0b1728;
-      box-shadow: var(--shadow);
-    }
-
-    .photo-stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .photo-card.small {
-      min-height: 185px;
-      border-radius: 24px;
-      box-shadow: none;
-    }
-
-    .photo-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      filter: brightness(.72) saturate(.95);
-      transition: .45s ease;
-    }
-
-    .photo-card:hover img {
-      transform: scale(1.06);
-      filter: brightness(.84) saturate(1.06);
-    }
-
-    .photo-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 24px;
-      background: linear-gradient(180deg, rgba(7,17,31,.05), rgba(7,17,31,.94));
-    }
-
-    .photo-badge {
-      position: absolute;
-      top: 18px;
-      left: 18px;
-      z-index: 2;
-      border: 1px solid rgba(255,255,255,.24);
-      border-radius: 999px;
-      background: rgba(7,17,31,.62);
-      backdrop-filter: blur(12px);
-      padding: 8px 11px;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .photo-overlay h3 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: -.045em;
-    }
-
-    .photo-overlay p {
-      margin: 0;
-      color: #c7d8ed;
-      line-height: 1.6;
-    }
-
-    .workflow {
-      display: grid;
-      grid-template-columns: .8fr 1.2fr;
-      gap: 22px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.06);
-      padding: 26px;
-    }
-
-    .tabs {
-      display: grid;
-      gap: 12px;
-    }
-
-    .tab {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 18px;
-      background: rgba(7,17,31,.58);
-      color: var(--text);
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .tab.active {
-      background: rgba(55,214,255,.11);
-      border-color: rgba(55,214,255,.38);
-    }
-
-    .tab strong {
-      display: block;
-      font-size: 22px;
-      margin-bottom: 7px;
-    }
-
-    .tab span {
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .workflow-panel {
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: rgba(7,17,31,.55);
-      padding: 18px;
-      min-height: 420px;
-    }
-
-    .workflow-panel h3 {
-      margin: 0 0 8px;
-      font-size: 26px;
-      letter-spacing: -.04em;
-    }
-
-    .workflow-panel p {
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .workflow-box {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,.05);
-      padding: 15px;
-      margin-top: 12px;
-    }
-
-    .modules {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .module {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(255,255,255,.06);
-      padding: 20px;
-    }
-
-    .module h3 {
-      margin: 0 0 8px;
-      font-size: 19px;
-    }
-
-    .module p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .status {
-      display: inline-flex;
-      margin-top: 13px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 7px 9px;
-      font-size: 12px;
-      color: #d8ebff;
-      background: rgba(255,255,255,.05);
-    }
-
-    .status.green {
-      color: #a9ffd5;
-      border-color: rgba(68,230,160,.28);
-      background: rgba(68,230,160,.1);
-    }
-
-    .pipeline {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 10px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 28px;
-      background: rgba(255,255,255,.06);
-    }
-
-    .pipe-step {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 15px 10px;
-      background: rgba(7,17,31,.65);
-      min-height: 126px;
-    }
-
-    .pipe-num {
-      width: 28px;
-      height: 28px;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      background: rgba(55,214,255,.14);
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 900;
-      margin-bottom: 9px;
-    }
-
-    .pipe-step b {
-      display: block;
-      font-size: 13px;
-      line-height: 1.3;
-      margin-bottom: 6px;
-    }
-
-    .pipe-step span {
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    .demo-grid {
-      display: grid;
-      grid-template-columns: .85fr 1.15fr;
-      gap: 22px;
-    }
-
-    .demo-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.06);
-      padding: 26px;
-    }
-
-    .demo-output {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(7,17,31,.58);
-      overflow: hidden;
-      min-height: 430px;
-    }
-
-    .demo-head {
-      padding: 18px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: center;
-      background: rgba(255,255,255,.05);
-    }
-
-    .demo-body {
-      padding: 18px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .demo-section {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      background: rgba(255,255,255,.05);
-    }
-
-    .demo-section h4 {
-      color: var(--blue);
-      margin: 0 0 9px;
-    }
-
-    .demo-section p,
-    .demo-section li {
-      color: #dcecff;
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .security {
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 28px;
-      border: 1px solid rgba(255,209,102,.3);
-      border-radius: var(--radius);
-      background: linear-gradient(135deg, rgba(255,209,102,.09), rgba(255,255,255,.05));
-      padding: 30px;
-    }
-
-    .security ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 12px;
-    }
-
-    .security li {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(0,0,0,.13);
-      padding: 14px 16px;
-      color: #dcecff;
-      line-height: 1.5;
-    }
-
-    .team {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-    }
-
-    .person {
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: rgba(255,255,255,.06);
-      padding: 20px;
-    }
-
-    .avatar {
-      width: 68px;
-      height: 68px;
-      border-radius: 24px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, rgba(55,214,255,.28), rgba(68,230,160,.2));
-      border: 1px solid var(--line);
-      font-weight: 950;
-      font-size: 20px;
-      margin-bottom: 16px;
-    }
-
-    .person h3 {
-      margin: 0 0 6px;
-      font-size: 18px;
-    }
-
-    .role {
-      display: block;
-      color: var(--blue);
-      font-size: 13px;
-      font-weight: 850;
-      margin-bottom: 10px;
-    }
-
-    .person p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .pilot {
-      display: grid;
-      grid-template-columns: .95fr 1.05fr;
-      gap: 24px;
-    }
-
-    .pilot-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.06);
-      padding: 28px;
-    }
-
-    .pilot-list {
-      list-style: none;
-      padding: 0;
-      margin: 22px 0 0;
-      display: grid;
-      gap: 12px;
-    }
-
-    .pilot-list li {
-      display: flex;
-      gap: 12px;
-      color: #c7d8ed;
-      line-height: 1.55;
-    }
-
-    .check {
-      width: 27px;
-      height: 27px;
-      flex: 0 0 auto;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      color: var(--green);
-      background: rgba(68,230,160,.12);
-      font-weight: 950;
-    }
-
-    .form {
-      display: grid;
-      gap: 12px;
-    }
-
-    .input, .select, .textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(7,17,31,.78);
-      color: var(--text);
-      padding: 15px 16px;
-      outline: none;
-      font-size: 15px;
-    }
-
-    .textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .faq {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    details {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: rgba(255,255,255,.06);
-      padding: 18px 20px;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 900;
-    }
-
-    details p {
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .final-cta {
-      text-align: center;
-      border: 1px solid var(--line);
-      border-radius: 34px;
-      padding: 52px 28px;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(55,214,255,.16), transparent 25rem),
-        rgba(255,255,255,.06);
-      box-shadow: var(--shadow);
-    }
-
-    .final-cta p {
-      color: #c7d8ed;
-      max-width: 760px;
-      margin: 18px auto 30px;
-      line-height: 1.65;
-      font-size: 18px;
-    }
-
-    .footer {
-      border-top: 1px solid var(--line);
-      padding: 34px 0;
-      color: var(--muted);
-    }
-
-    .footer-inner {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-      font-size: 14px;
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(22px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+      display: inline-flex; align-items: center; gap: 10px;
+      border: 1px solid var(--line); border-radius: 999px;
+      padding: 9px 13px; background: rgba(255,255,255,.56);
+      color: #2b2b2b; font-weight: 850; font-size: 13px; margin-bottom: 20px;
+    }
+    .pulse { width: 9px; height: 9px; border-radius: 999px; background: var(--green); box-shadow: 0 0 0 7px rgba(31,201,133,.13); }
+    h1 { margin: 0; font-size: clamp(46px, 7vw, 92px); line-height: .91; letter-spacing: -.09em; }
+    .hero-lead { margin: 26px 0 0; color: #4f4a43; font-size: 21px; line-height: 1.58; max-width: 720px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 32px; }
+    .hero-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 26px; max-width: 720px; }
+    .meta-card { border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.54); }
+    .meta-card b { display: block; font-size: 22px; letter-spacing: -.05em; }
+    .meta-card span { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; margin-top: 3px; }
+
+    .hero-photo {
+      position: relative; min-height: 610px; border-radius: 38px; overflow: hidden;
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.6); background: var(--dark);
+    }
+    .hero-photo img { width: 100%; height: 100%; min-height: 610px; object-fit: cover; filter: brightness(.74) saturate(.92); }
+    .hero-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,10,18,.06), rgba(6,10,18,.88)); }
+    .hero-caption { position: absolute; z-index: 2; inset: auto 24px 24px 24px; color: #fff; }
+    .hero-caption .label { display: inline-flex; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 8px 11px; background: rgba(255,255,255,.12); backdrop-filter: blur(12px); font-size: 12px; font-weight: 850; margin-bottom: 14px; }
+    .hero-caption h2 { margin: 0 0 10px; font-size: 34px; line-height: 1; letter-spacing: -.055em; }
+    .hero-caption p { margin: 0; color: rgba(255,255,255,.78); line-height: 1.55; }
+    .mini-dashboard { margin-top: 16px; border: 1px solid rgba(255,255,255,.18); border-radius: 22px; padding: 14px; background: rgba(6,10,18,.58); backdrop-filter: blur(16px); display: grid; gap: 9px; }
+    .dash-row { display: grid; grid-template-columns: 105px 1fr; gap: 10px; font-size: 13px; line-height: 1.45; }
+    .dash-row b { color: #82dcff; }
+
+    .section { padding: 74px 0; }
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin-bottom: 30px; }
+    .kicker { color: var(--orange); font-size: 12px; font-weight: 1000; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; }
+    h2 { margin: 0; font-size: clamp(34px, 4.6vw, 62px); line-height: .98; letter-spacing: -.07em; }
+    .section-desc { color: var(--muted); line-height: 1.65; font-size: 17px; max-width: 560px; margin: 0; }
+
+    .stats-band { padding: 28px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .stat { background: var(--dark); color: #fff; border-radius: 26px; padding: 24px; position: relative; overflow: hidden; min-height: 150px; }
+    .stat::after { content: ""; position: absolute; inset: auto -45px -55px auto; width: 150px; height: 150px; border-radius: 999px; background: rgba(24,168,255,.15); }
+    .stat b { display: block; font-size: 44px; letter-spacing: -.07em; position: relative; z-index: 1; }
+    .stat span { display: block; color: rgba(255,255,255,.7); line-height: 1.45; margin-top: 8px; position: relative; z-index: 1; }
+
+    .inside-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; }
+    .photo-stack { display: grid; gap: 18px; }
+    .photo-card { position: relative; min-height: 430px; border-radius: 32px; overflow: hidden; background: var(--dark); box-shadow: var(--shadow); }
+    .photo-card.small { min-height: 206px; border-radius: 26px; box-shadow: none; }
+    .photo-card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.76) saturate(.92); transition: .45s ease; }
+    .photo-card:hover img { transform: scale(1.06); filter: brightness(.86) saturate(1.05); }
+    .photo-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; background: linear-gradient(180deg, transparent, rgba(5,8,15,.92)); color: #fff; }
+    .photo-overlay h3 { margin: 0 0 8px; font-size: 30px; letter-spacing: -.055em; }
+    .photo-overlay p { margin: 0; color: rgba(255,255,255,.76); line-height: 1.55; }
+    .photo-tag { position: absolute; z-index: 2; top: 18px; left: 18px; color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 8px 11px; background: rgba(5,8,15,.48); backdrop-filter: blur(12px); font-size: 12px; font-weight: 850; }
+
+    .why-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 24px; align-items: stretch; }
+    .why-image { border-radius: 34px; overflow: hidden; min-height: 520px; box-shadow: var(--shadow); }
+    .why-image img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.85) saturate(.96); }
+    .why-list { display: grid; gap: 14px; }
+    .why-item { display: grid; grid-template-columns: 70px 1fr; gap: 18px; border-bottom: 1px solid var(--line); padding: 0 0 18px; }
+    .why-num { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; background: var(--dark); color: #fff; font-weight: 950; }
+    .why-item h3 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.05em; }
+    .why-item p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+    .timeline { display: grid; gap: 14px; }
+    .timeline-item { display: grid; grid-template-columns: 160px 1fr; gap: 20px; align-items: stretch; }
+    .timeline-date { border-radius: 24px; background: var(--dark); color: #fff; padding: 22px; font-weight: 950; letter-spacing: -.03em; }
+    .timeline-card { border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.58); padding: 22px; display: grid; grid-template-columns: 1fr 220px; gap: 18px; align-items: center; }
+    .timeline-card h3 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.055em; }
+    .timeline-card p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .timeline-card img { height: 150px; width: 100%; object-fit: cover; border-radius: 20px; }
+
+    .modules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .module { background: var(--paper); border: 1px solid var(--line); border-radius: 26px; padding: 24px; box-shadow: 0 12px 34px rgba(15,23,42,.06); }
+    .module-icon { width: 50px; height: 50px; border-radius: 18px; display: grid; place-items: center; background: #111827; color: #fff; margin-bottom: 16px; font-size: 22px; }
+    .module h3 { margin: 0 0 9px; font-size: 22px; letter-spacing: -.05em; }
+    .module p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .tag { border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 800; background: rgba(255,255,255,.55); }
+
+    .demo-strip { background: var(--dark); color: #fff; border-radius: 38px; padding: 36px; display: grid; grid-template-columns: .85fr 1.15fr; gap: 28px; align-items: center; box-shadow: var(--shadow); }
+    .demo-strip h2 { color: #fff; }
+    .demo-strip p { color: rgba(255,255,255,.72); line-height: 1.65; font-size: 17px; }
+    .demo-screen { border: 1px solid rgba(255,255,255,.14); border-radius: 28px; background: rgba(255,255,255,.06); overflow: hidden; }
+    .screen-top { height: 48px; border-bottom: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: rgba(255,255,255,.6); font-size: 12px; }
+    .screen-body { padding: 16px; display: grid; gap: 10px; }
+    .screen-line { border: 1px solid rgba(255,255,255,.12); border-radius: 16px; padding: 13px; background: rgba(0,0,0,.18); display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 13px; line-height: 1.45; }
+    .screen-line b { color: #82dcff; }
+
+    .team-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+    .person { border: 1px solid var(--line); border-radius: 26px; padding: 22px; background: var(--paper); }
+    .avatar { width: 70px; height: 70px; border-radius: 24px; display: grid; place-items: center; background: var(--dark); color: #fff; font-size: 21px; font-weight: 950; margin-bottom: 16px; }
+    .person h3 { margin: 0 0 7px; font-size: 19px; line-height: 1.16; letter-spacing: -.04em; }
+    .role { display: block; color: var(--orange); font-weight: 950; font-size: 13px; line-height: 1.35; margin-bottom: 10px; }
+    .person p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+    .pilot-card { border-radius: 38px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; display: grid; grid-template-columns: 1fr .9fr; }
+    .pilot-content { padding: 36px; }
+    .pilot-photo { min-height: 100%; }
+    .pilot-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .check-list { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 12px; }
+    .check-list li { display: flex; gap: 12px; color: #4f4a43; line-height: 1.55; }
+    .check { flex: 0 0 auto; width: 27px; height: 27px; border-radius: 999px; display: grid; place-items: center; background: rgba(31,201,133,.13); color: #0b7c50; font-weight: 950; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 22px; }
+    .input, .textarea, .select { width: 100%; border: 1px solid var(--line); background: #fff; border-radius: 18px; padding: 15px 16px; outline: none; font-size: 15px; }
+    .textarea { grid-column: 1 / -1; min-height: 110px; resize: vertical; }
+    .form-grid .btn { grid-column: 1 / -1; }
+    .form-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .faq { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    details { border: 1px solid var(--line); border-radius: 22px; background: var(--paper); padding: 18px 20px; }
+    summary { cursor: pointer; font-weight: 950; letter-spacing: -.02em; }
+    details p { color: var(--muted); line-height: 1.6; }
+
+    .final { text-align: center; background: var(--dark); color: #fff; border-radius: 40px; padding: 56px 30px; box-shadow: var(--shadow); }
+    .final p { max-width: 760px; color: rgba(255,255,255,.72); line-height: 1.65; margin: 18px auto 30px; font-size: 18px; }
+
+    .footer { padding: 34px 0; color: var(--muted); border-top: 1px solid var(--line); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+
+    .floating-demo { position: fixed; right: 22px; bottom: 22px; z-index: 90; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
 
     @media (max-width: 1080px) {
-      .hero-grid,
-      .photo-grid,
-      .workflow,
-      .demo-grid,
-      .security,
-      .pilot {
-        grid-template-columns: 1fr;
-      }
-
-      .stats-grid,
-      .cards-4 {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .team {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .pipeline {
-        grid-template-columns: repeat(3, 1fr);
-      }
+      .hero-grid, .inside-grid, .why-grid, .demo-strip, .pilot-card { grid-template-columns: 1fr; }
+      .team-grid, .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .pilot-photo { min-height: 320px; }
     }
-
-    @media (max-width: 760px) {
+    @media (max-width: 860px) {
       .nav-links { display: none; }
-
-      .stats-grid,
-      .cards-4,
-      .modules,
-      .team,
-      .faq,
-      .pipeline {
-        grid-template-columns: 1fr;
-      }
-
-      .section-head {
-        display: block;
-      }
-
-      .photo-hero,
-      .photo-hero img {
-        min-height: 620px;
-      }
-
-      .note-row {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-actions .btn,
-      .nav .btn {
-        width: 100%;
-      }
-
-      .nav-inner {
-        align-items: flex-start;
-        padding: 12px 0;
-      }
+      .hero-meta, .modules-grid, .faq { grid-template-columns: 1fr; }
+      .timeline-item, .timeline-card { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .screen-line, .dash-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .container { width: min(var(--max), calc(100% - 24px)); }
+      .hero { padding-top: 48px; }
+      h1 { font-size: 48px; }
+      .hero-photo, .hero-photo img { min-height: 680px; }
+      .stats-grid, .team-grid, .form-grid { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .floating-demo { left: 12px; right: 12px; }
+      .floating-demo .btn { width: 100%; }
     }
   </style>
 </head>
-
 <body>
   <header class="nav">
     <div class="container nav-inner">
-      <a class="brand" href="#top">
-        <span class="brand-mark">C</span>
-        <span>ClinFlow AI</span>
-      </a>
-
+      <a class="brand" href="#top"><span class="brand-mark">C</span><span>ClinFlow AI</span></a>
       <nav class="nav-links">
-        <a href="#problem">Проблема</a>
-        <a href="#visuals">Визуал</a>
-        <a href="#workflow">Как работает</a>
+        <a href="#inside">Изнутри</a>
+        <a href="#why">Почему важно</a>
+        <a href="#workflow">Путь приема</a>
         <a href="#modules">Модули</a>
-        <a href="#pipeline">AI Pipeline</a>
         <a href="#team">Команда</a>
         <a href="#pilot">Пилот</a>
       </nav>
-
-      <a class="btn btn-primary" href="#pilot">Запросить демо</a>
+      <a class="btn btn-dark" href="api-demo.html">Открыть демо</a>
     </div>
   </header>
 
@@ -999,122 +250,79 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="reveal">
-          <div class="eyebrow"><span class="pulse"></span> MedTech MVP для клиник и поликлиник РФ</div>
-          <h1><span class="gradient">AI-ассистент</span><br />для врача на весь цикл приема</h1>
-          <p>
-            ClinFlow AI превращает голос врача и данные визита в структурированную медицинскую запись, подсказки по МКБ-10, инструкции пациенту и черновики документов — с обязательным ручным утверждением врачом.
-          </p>
-
+          <div class="eyebrow"><span class="pulse"></span> AI CLINICAL WORKFLOW · MVP ДЛЯ КЛИНИК РФ</div>
+          <h1>Покажи врачу,<br><span style="color:var(--orange)">как выглядит прием</span><br>без бумажной рутины</h1>
+          <p class="hero-lead">ClinFlow AI помогает врачу пройти полный цикл приема: подготовиться, провести консультацию, получить AI-черновик медицинской записи, подсказки МКБ-10 и документы после приема. Финальную версию утверждает только врач.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#pilot">Получить демо-доступ</a>
-            <a class="btn btn-secondary" href="#workflow">Посмотреть сценарий приема</a>
+            <a class="btn btn-dark" href="api-demo.html">Открыть рабочее демо →</a>
+            <a class="btn btn-light" href="#workflow">Смотреть путь приема</a>
           </div>
-
-          <div class="pills">
-            <span class="pill">Pre-Visit → Encounter → Post-Visit</span>
-            <span class="pill">Human-in-the-loop</span>
-            <span class="pill">МКБ-10</span>
-            <span class="pill">Audit trail</span>
-            <span class="pill">MIS-ready</span>
+          <div class="hero-meta">
+            <div class="meta-card"><b>3</b><span>этапа workflow</span></div>
+            <div class="meta-card"><b>1</b><span>AI-ассистент врача</span></div>
+            <div class="meta-card"><b>100%</b><span>ручное утверждение</span></div>
+            <div class="meta-card"><b>MVP</b><span>готов к пилоту</span></div>
           </div>
         </div>
 
-        <div class="photo-hero reveal">
-          <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1400&q=80" alt="Врач работает с цифровой медицинской системой" />
-          <div class="hero-dashboard">
-            <div class="dashboard-top">
-              <div>
-                <h3>Иванов И.И. · визит #2048</h3>
-                <p>Жалобы: кашель, температура, слабость. Последний визит: 3 месяца назад.</p>
-              </div>
-              <span>AI draft · требует проверки</span>
-            </div>
-
-            <div class="soundwave">
-              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-            </div>
-
-            <div class="note">
-              <div class="note-row"><b>Жалобы</b><span>Кашель, температура до 38.2, слабость, боль в горле.</span></div>
-              <div class="note-row"><b>МКБ-10</b><span>J06.9 — черновая подсказка, требует проверки врачом.</span></div>
-              <div class="note-row"><b>Статус</b><span>AI не подписывает документ. Финальное решение принимает врач.</span></div>
+        <div class="hero-photo reveal">
+          <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1500&q=85" alt="Врач работает с цифровой медицинской системой">
+          <div class="hero-caption">
+            <span class="label">Live demo · Render backend connected</span>
+            <h2>AI не заменяет врача — он снимает бумажную нагрузку</h2>
+            <p>Врач говорит естественным языком, система собирает структурированный черновик, а финальный документ подтверждается вручную.</p>
+            <div class="mini-dashboard">
+              <div class="dash-row"><b>Transcript</b><span>Пациент жалуется на кашель, температуру и слабость...</span></div>
+              <div class="dash-row"><b>AI draft</b><span>Жалобы · анамнез · оценка · план</span></div>
+              <div class="dash-row"><b>МКБ-10</b><span>J06.9 — черновая подсказка, требует проверки</span></div>
+              <div class="dash-row"><b>Status</b><span>Ожидает утверждения врачом</span></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section reveal">
+    <section class="stats-band reveal">
       <div class="container stats-grid">
-        <div class="stat"><strong>3</strong><span>этапа приема в одном workflow</span></div>
-        <div class="stat"><strong>10+</strong><span>типов медицинских документов в roadmap</span></div>
-        <div class="stat"><strong>100%</strong><span>финальное утверждение только врачом</span></div>
-        <div class="stat"><strong>MVP</strong><span>готовность к первому пилоту</span></div>
+        <div class="stat"><b>Pre</b><span>краткая сводка по пациенту до приема</span></div>
+        <div class="stat"><b>Live</b><span>диктовка и AI-черновик во время приема</span></div>
+        <div class="stat"><b>Post</b><span>инструкции, выписки, справки, направления</span></div>
+        <div class="stat"><b>Audit</b><span>история действий и финальное утверждение</span></div>
       </div>
     </section>
 
-    <section class="section reveal" id="problem">
+    <section class="section reveal" id="inside">
       <div class="container">
         <div class="section-head">
-          <div>
-            <div class="kicker">Проблема</div>
-            <h2>Врач лечит пациента, но система заставляет его быть оператором текста</h2>
-          </div>
-          <p class="section-desc">
-            Большая часть времени уходит на оформление записей, справок, выписок и рекомендаций. ClinFlow AI закрывает черновую часть документооборота, сохраняя врачебный контроль.
-          </p>
+          <div><div class="kicker">Изнутри</div><h2>Так выглядит ClinFlow AI в клинике</h2></div>
+          <p class="section-desc">Каждый блок лендинга показывает не абстрактную технологию, а реальный момент работы врача: прием, речь, карта пациента, документы и контроль результата.</p>
         </div>
-
-        <div class="cards-4">
-          <article class="card"><div class="icon">⏱</div><h3>Перегрузка документацией</h3><p>После приема врачу нужно оформить запись, назначения, рекомендации и сопутствующие документы.</p></article>
-          <article class="card"><div class="icon">🧩</div><h3>Разрозненный workflow</h3><p>История пациента, диктовка, шаблоны, МКБ-10 и финальные документы часто живут отдельно.</p></article>
-          <article class="card"><div class="icon">🛡</div><h3>Нужен контроль</h3><p>Медицинский AI должен быть помощником врача, а не системой самостоятельных решений.</p></article>
-          <article class="card"><div class="icon">🔗</div><h3>Нет единого AI-слоя</h3><p>Между приемом, документами и картой пациента нужен единый рабочий слой.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section reveal" id="visuals">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="kicker">Визуальный сценарий</div>
-            <h2>ClinFlow AI в реальной среде клиники</h2>
-          </div>
-          <p class="section-desc">
-            Не абстрактный AI, а конкретный рабочий контекст: врач, пациент, прием, медицинская документация и цифровой слой поверх клинического процесса.
-          </p>
-        </div>
-
-        <div class="photo-grid">
+        <div class="inside-grid">
           <article class="photo-card">
-            <span class="photo-badge">Clinical workflow</span>
-            <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1400&q=80" alt="Медицинская документация и рабочее место врача" />
-            <div class="photo-overlay">
-              <h3>Кабинет врача + AI-слой документации</h3>
-              <p>Врач общается с пациентом, а система помогает собрать черновик записи, документы и подсказки.</p>
-            </div>
+            <span class="photo-tag">Encounter</span>
+            <img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=1400&q=85" alt="Врач и пациент на консультации">
+            <div class="photo-overlay"><h3>Прием остается человеческим</h3><p>AI работает на фоне: помогает оформлять документы, но не забирает внимание врача у пациента.</p></div>
           </article>
-
           <div class="photo-stack">
-            <article class="photo-card small">
-              <span class="photo-badge">Patient chart</span>
-              <img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=80" alt="Врач и пациент на консультации" />
-              <div class="photo-overlay">
-                <h3>Карта пациента</h3>
-                <p>Сводка, история визитов и документы в одном потоке.</p>
-              </div>
-            </article>
+            <article class="photo-card small"><span class="photo-tag">Patient chart</span><img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=85" alt="Медицинская документация"><div class="photo-overlay"><h3>Карта пациента</h3><p>История, визиты, документы и AI-черновики в одном контуре.</p></div></article>
+            <article class="photo-card small"><span class="photo-tag">Clinic</span><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=85" alt="Современная клиника"><div class="photo-overlay"><h3>Клиника будущего</h3><p>Не отдельная игрушка, а рабочий слой поверх медицинского процесса.</p></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <article class="photo-card small">
-              <span class="photo-badge">Post-Visit</span>
-              <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=80" alt="Современная клиника" />
-              <div class="photo-overlay">
-                <h3>После приема</h3>
-                <p>Инструкции пациенту, справки, направления и выписки.</p>
-              </div>
-            </article>
+    <section class="section reveal" id="why">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="kicker">Почему это важно</div><h2>Медицина не должна превращать врача в оператора текста</h2></div>
+        </div>
+        <div class="why-grid">
+          <div class="why-image"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=1100&q=85" alt="Медицинские технологии"></div>
+          <div class="why-list">
+            <div class="why-item"><div class="why-num">01</div><div><h3>Документация съедает прием</h3><p>После консультации врачу приходится оформлять запись, рекомендации, направления и справки. ClinFlow AI берет черновую текстовую работу на себя.</p></div></div>
+            <div class="why-item"><div class="why-num">02</div><div><h3>AI должен быть помощником, а не автопилотом</h3><p>Система не ставит диагноз самостоятельно и не подписывает документы. Врач видит AI-черновик, редактирует и утверждает финальную версию.</p></div></div>
+            <div class="why-item"><div class="why-num">03</div><div><h3>Клинике нужен единый workflow</h3><p>Pre-Visit, Encounter и Post-Visit должны быть связаны: пациент, визит, речь врача, документы, МКБ-10 и audit trail.</p></div></div>
+            <div class="why-item"><div class="why-num">04</div><div><h3>Запуск начинается с одного сценария</h3><p>Для пилота достаточно одной специальности и одного типа приема, чтобы измерить экономию времени и собрать обратную связь врачей.</p></div></div>
           </div>
         </div>
       </div>
@@ -1123,140 +331,46 @@
     <section class="section reveal" id="workflow">
       <div class="container">
         <div class="section-head">
-          <div>
-            <div class="kicker">Как работает</div>
-            <h2>Pre-Visit → Encounter → Post-Visit</h2>
-          </div>
-          <p class="section-desc">Нажмите на этап: справа поменяется демонстрационный экран.</p>
+          <div><div class="kicker">Путь приема</div><h2>От подготовки до финального документа</h2></div>
+          <p class="section-desc">Вместо программы “день за днем” — маршрут врача “шаг за шагом”: что происходит до приема, во время приема и после него.</p>
         </div>
-
-        <div class="workflow">
-          <div class="tabs">
-            <button class="tab active" data-tab="pre"><strong>Pre-Visit</strong><span>Сводка по пациенту, прошлые визиты, диагнозы, назначения.</span></button>
-            <button class="tab" data-tab="encounter"><strong>Encounter</strong><span>Диктовка, structured note, МКБ-10, план.</span></button>
-            <button class="tab" data-tab="post"><strong>Post-Visit</strong><span>Инструкции, справки, направления, выписки.</span></button>
-          </div>
-
-          <div class="workflow-panel" id="workflowPanel"></div>
+        <div class="timeline">
+          <div class="timeline-item"><div class="timeline-date">Pre-Visit</div><div class="timeline-card"><div><h3>Сводка до приема</h3><p>Врач видит жалобы, прошлые визиты, диагнозы, назначения и может заранее надиктовать pre-charting.</p></div><img src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=700&q=85" alt="Врачи обсуждают случай"></div></div>
+          <div class="timeline-item"><div class="timeline-date">Encounter</div><div class="timeline-card"><div><h3>Диктовка и AI-черновик</h3><p>Речь врача превращается в structured note: жалобы, анамнез, статус, оценка, план и подсказки МКБ-10.</p></div><img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=700&q=85" alt="Стетоскоп"></div></div>
+          <div class="timeline-item"><div class="timeline-date">Post-Visit</div><div class="timeline-card"><div><h3>Документы после приема</h3><p>Система готовит инструкцию пациенту, справку, направление, выписку или рекомендации через шаблонизатор.</p></div><img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=700&q=85" alt="Медицинские технологии"></div></div>
+          <div class="timeline-item"><div class="timeline-date">Approval</div><div class="timeline-card"><div><h3>Финальное утверждение врачом</h3><p>AI-результат не считается документом, пока врач его не проверил, не отредактировал и не утвердил.</p></div><img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=700&q=85" alt="Врач изучает данные"></div></div>
         </div>
       </div>
     </section>
 
     <section class="section reveal" id="modules">
       <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="kicker">MVP modules</div>
-            <h2>Модули первой версии</h2>
-          </div>
-          <p class="section-desc">Модули собраны так, чтобы быстро показать ценность клинике и заложить архитектуру для интеграций.</p>
-        </div>
-
-        <div class="modules">
-          <div class="module"><h3>👤 Карточка пациента</h3><p>Профиль, история визитов, краткая сводка и документы.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>🩺 Экран приема</h3><p>Единое рабочее пространство врача на время визита.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>🎙 Аудио / диктовка</h3><p>Загрузка аудио или диктовка врача для обработки.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>🧠 AI note editor</h3><p>Редактируемый AI-черновик медицинской записи.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>🏷 МКБ-10 suggestions</h3><p>Подсказки кодов диагнозов как вспомогательный слой.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>📄 Document templates</h3><p>Шаблоны справок, выписок, направлений и инструкций.</p><span class="status">roadmap</span></div>
-          <div class="module"><h3>🧾 Audit trail</h3><p>Журнал действий, изменения и финализация документов.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>⚙️ Admin panel</h3><p>Роли, настройки, пользователи и контроль доступа.</p><span class="status green">MVP</span></div>
-          <div class="module"><h3>🔌 MIS adapter layer</h3><p>Будущий слой интеграций с медицинскими информационными системами.</p><span class="status">integration-ready</span></div>
+        <div class="section-head"><div><div class="kicker">Модули</div><h2>Что входит в MVP</h2></div><p class="section-desc">Фокус первой версии — показать ценность клинике и доказать, что AI может работать вокруг реального приема врача.</p></div>
+        <div class="modules-grid">
+          <div class="module"><div class="module-icon">👤</div><h3>Пациент</h3><p>Карточка, история визитов, сводка и документы.</p><div class="tag-row"><span class="tag">MVP</span></div></div>
+          <div class="module"><div class="module-icon">🩺</div><h3>Визит</h3><p>Экран приема, причина обращения, этапы workflow.</p><div class="tag-row"><span class="tag">MVP</span></div></div>
+          <div class="module"><div class="module-icon">🎙</div><h3>Диктовка</h3><p>Аудио или текст врача как вход в AI pipeline.</p><div class="tag-row"><span class="tag">MVP</span></div></div>
+          <div class="module"><div class="module-icon">🧠</div><h3>AI note</h3><p>Черновик записи приема: жалобы, анамнез, оценка, план.</p><div class="tag-row"><span class="tag">MVP</span></div></div>
+          <div class="module"><div class="module-icon">🏷</div><h3>МКБ-10</h3><p>Подсказки кодов диагнозов как вспомогательный слой.</p><div class="tag-row"><span class="tag">Human review</span></div></div>
+          <div class="module"><div class="module-icon">📄</div><h3>Документы</h3><p>Инструкции, справки, направления, выписки через шаблоны.</p><div class="tag-row"><span class="tag">Roadmap</span></div></div>
+          <div class="module"><div class="module-icon">🧾</div><h3>Audit trail</h3><p>История действий, изменения и факт утверждения врачом.</p><div class="tag-row"><span class="tag">MVP</span></div></div>
+          <div class="module"><div class="module-icon">🔌</div><h3>MIS adapter</h3><p>Слой будущих интеграций с медицинскими информационными системами.</p><div class="tag-row"><span class="tag">Integration-ready</span></div></div>
+          <div class="module"><div class="module-icon">🛡</div><h3>Роли доступа</h3><p>Врач, администратор, руководитель, ограничения и права.</p><div class="tag-row"><span class="tag">Security</span></div></div>
         </div>
       </div>
     </section>
 
-    <section class="section reveal" id="pipeline">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="kicker">AI Pipeline</div>
-            <h2>Как AI превращает прием в документ</h2>
-          </div>
-          <p class="section-desc">Граница между речью, AI-черновиком и финальным документом остается прозрачной.</p>
-        </div>
-
-        <div class="pipeline">
-          <div class="pipe-step"><div class="pipe-num">1</div><b>Audio / dictation</b><span>речь врача</span></div>
-          <div class="pipe-step"><div class="pipe-num">2</div><b>Speech-to-text</b><span>речь в текст</span></div>
-          <div class="pipe-step"><div class="pipe-num">3</div><b>Text normalization</b><span>очистка текста</span></div>
-          <div class="pipe-step"><div class="pipe-num">4</div><b>Entity extraction</b><span>симптомы и жалобы</span></div>
-          <div class="pipe-step"><div class="pipe-num">5</div><b>Encounter note</b><span>структура приема</span></div>
-          <div class="pipe-step"><div class="pipe-num">6</div><b>ICD-10</b><span>подсказки кодов</span></div>
-          <div class="pipe-step"><div class="pipe-num">7</div><b>Document drafts</b><span>черновики</span></div>
-          <div class="pipe-step"><div class="pipe-num">8</div><b>Doctor approval</b><span>утверждение</span></div>
-          <div class="pipe-step"><div class="pipe-num">9</div><b>Patient chart</b><span>сохранение</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section reveal" id="demo">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="kicker">Product demo</div>
-            <h2>Интерактивный демо-прием</h2>
-          </div>
-          <p class="section-desc">Работает без backend — только внутри этой страницы.</p>
-        </div>
-
-        <div class="demo-grid">
-          <div class="demo-card">
-            <h2 style="font-size:34px;">Врач провел прием</h2>
-            <p class="section-desc">Нажмите кнопку, чтобы увидеть transcript, AI-черновик, МКБ-10, инструкцию пациенту и утверждение врачом.</p>
-            <div class="hero-actions">
-              <button class="btn btn-primary" id="generateDemo">Сгенерировать демо-прием</button>
-              <button class="btn btn-secondary" id="resetDemo">Сбросить</button>
-            </div>
-          </div>
-
-          <div class="demo-output">
-            <div class="demo-head">
-              <strong>Результат демо</strong>
-              <span class="status" id="demoStatus">ожидает генерации</span>
-            </div>
-            <div class="demo-body" id="demoBody">
-              <div class="demo-section">
-                <p>Здесь появится исходная речь, AI-черновик, МКБ-10, инструкция пациенту и кнопка утверждения врачом.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <section class="section reveal" id="security">
-      <div class="container">
-        <div class="security">
-          <div>
-            <div class="kicker">Safety & РФ-адаптация</div>
-            <h2>AI не заменяет врача и не подписывает документы</h2>
-            <p class="section-desc">Для production-запуска потребуется юридическая, медицинская и техническая валидация.</p>
-          </div>
-
-          <ul>
-            <li>Human-in-the-loop: финальную версию подтверждает врач.</li>
-            <li>Разделение: исходная речь / AI draft / финальный документ.</li>
-            <li>Роли доступа: врач, администратор, руководитель.</li>
-            <li>Audit logs и журнал изменений.</li>
-            <li>Гибкий шаблонизатор документов.</li>
-            <li>MIS adapter layer и будущая готовность к ЕГИСЗ adapter layer.</li>
-          </ul>
-        </div>
+    <section class="section reveal">
+      <div class="container demo-strip">
+        <div><div class="kicker">Рабочее демо</div><h2>Это уже не просто лендинг</h2><p>У проекта есть рабочий demo-flow: GitHub Pages обращается к backend на Render, backend создает AI-черновик и сохраняет визит в PostgreSQL. Нажмите кнопку и проверьте сценарий “врач провел прием”.</p><div class="hero-actions"><a class="btn btn-green" href="api-demo.html">Открыть рабочее демо →</a></div></div>
+        <div class="demo-screen"><div class="screen-top"><span>doctor.clinflow.ai / encounter</span><span>AI draft</span></div><div class="screen-body"><div class="screen-line"><b>Backend</b><span>https://medproject1.onrender.com</span></div><div class="screen-line"><b>Visit</b><span>создается и сохраняется в базе</span></div><div class="screen-line"><b>Approval</b><span>POST /visits/{id}/approve</span></div><div class="screen-line"><b>Status</b><span>финальная версия утверждена врачом</span></div></div></div>
       </div>
     </section>
 
     <section class="section reveal" id="team">
       <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="kicker">Команда проекта</div>
-            <h2>Основатели и запусковая команда</h2>
-          </div>
-          <p class="section-desc">Команда соединяет медицинскую экспертизу, архитектуру цифровых продуктов, техническую реализацию, продажи и венчурную стратегию.</p>
-        </div>
-
-        <div class="team">
+        <div class="section-head"><div><div class="kicker">Команда</div><h2>Основатели и запусковая команда</h2></div><p class="section-desc">Проект соединяет медицинскую логику, архитектуру продукта, технологическую реализацию, продажи и венчурное масштабирование.</p></div>
+        <div class="team-grid">
           <article class="person"><div class="avatar">ЛМ</div><h3>Лиана Мирзабалаева</h3><span class="role">Основатель проекта</span><p>Формирует продуктовую визию, медицинский сценарий применения и стратегию развития платформы.</p></article>
           <article class="person"><div class="avatar">АЗ</div><h3>Анна Зуенко</h3><span class="role">Сооснователь · архитектор</span><p>Отвечает за архитектурную логику платформы, структуру пользовательских сценариев и системное проектирование.</p></article>
           <article class="person"><div class="avatar">ВВ</div><h3>Виталий Ванеев</h3><span class="role">Сооснователь · венчурный инвестор</span><p>Отвечает за венчурную стратегию, партнерства, упаковку проекта и масштабирование.</p></article>
@@ -1267,225 +381,78 @@
     </section>
 
     <section class="section reveal" id="pilot">
-      <div class="container">
-        <div class="pilot">
-          <div class="pilot-card">
-            <div class="kicker">Pilot launch</div>
-            <h2>Запустить пилот ClinFlow AI в клинике</h2>
-            <p class="section-desc">Первый пилот можно провести на ограниченном сценарии: 1–2 специальности, демо-пациенты или обезличенные данные.</p>
-
-            <ul class="pilot-list">
-              <li><span class="check">✓</span><span>Демо-сценарий “врач провел прием”.</span></li>
-              <li><span class="check">✓</span><span>AI-черновик медицинской записи.</span></li>
-              <li><span class="check">✓</span><span>Подсказки МКБ-10.</span></li>
-              <li><span class="check">✓</span><span>Инструкция пациенту и документы после приема.</span></li>
-              <li><span class="check">✓</span><span>Ручное утверждение врачом.</span></li>
-            </ul>
-          </div>
-
-          <div class="pilot-card">
-            <form class="form" onsubmit="sendDemoRequest(event)">
-              <input class="input" id="name" type="text" placeholder="Имя / клиника" required />
-              <input class="input" id="contact" type="text" placeholder="Телефон / Telegram / email" required />
-              <select class="select" id="interest">
-                <option>Хочу посмотреть демо MVP</option>
-                <option>Интересует пилот в клинике</option>
-                <option>Интересует инвестиционное обсуждение</option>
-                <option>Интересует техническая разработка</option>
-              </select>
-              <textarea class="textarea" id="message" placeholder="Коротко опишите запрос"></textarea>
-              <button class="btn btn-primary" type="submit">Отправить заявку</button>
-              <p id="formStatus" style="color:var(--muted);font-size:13px;line-height:1.5;">Форма работает через email: eastside.study@gmail.com</p>
-            </form>
-          </div>
+      <div class="container pilot-card">
+        <div class="pilot-content">
+          <div class="kicker">Пилот с клиникой</div><h2>Запустить первый сценарий за короткий цикл</h2>
+          <p class="section-desc">Пилот можно провести на 1–2 специальностях, с демо-данными или обезличенными данными, ручной проверкой врачей и измерением времени оформления.</p>
+          <ul class="check-list">
+            <li><span class="check">✓</span><span>Демо-сценарий “врач провел прием”.</span></li>
+            <li><span class="check">✓</span><span>AI-черновик медицинской записи и МКБ-10.</span></li>
+            <li><span class="check">✓</span><span>Инструкция пациенту и документы после приема.</span></li>
+            <li><span class="check">✓</span><span>Утверждение врачом и audit trail.</span></li>
+            <li><span class="check">✓</span><span>Сбор обратной связи от врачей.</span></li>
+          </ul>
+          <form class="form-grid" onsubmit="sendDemoRequest(event)">
+            <input class="input" id="name" placeholder="Имя / клиника" required>
+            <input class="input" id="contact" placeholder="Телефон / Telegram / email" required>
+            <select class="select" id="interest"><option>Хочу посмотреть демо MVP</option><option>Интересует пилот в клинике</option><option>Инвестиционное обсуждение</option><option>Техническая разработка</option></select>
+            <textarea class="textarea" id="message" placeholder="Коротко опишите запрос"></textarea>
+            <button class="btn btn-dark" type="submit">Отправить заявку</button>
+            <p class="form-note" id="formStatus">Форма работает через email: eastside.study@gmail.com</p>
+          </form>
         </div>
+        <div class="pilot-photo"><img src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=900&q=85" alt="Пилот в клинике"></div>
       </div>
     </section>
 
     <section class="section reveal" id="faq">
       <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="kicker">FAQ</div>
-            <h2>Коротко о продукте</h2>
-          </div>
-        </div>
-
+        <div class="section-head"><div><div class="kicker">FAQ</div><h2>Коротко о продукте</h2></div></div>
         <div class="faq">
           <details open><summary>Это система постановки диагноза?</summary><p>Нет. Это AI-ассистент клинического документооборота. Диагнозы, назначения и финальные документы утверждает врач.</p></details>
-          <details><summary>Можно ли подключить к МИС?</summary><p>Да, архитектура предусматривает adapter layer. Реальная интеграция зависит от конкретной МИС.</p></details>
+          <details><summary>Можно ли подключить к МИС?</summary><p>Да, архитектура закладывает adapter layer. Реальная интеграция зависит от конкретной МИС, API и требований клиники.</p></details>
           <details><summary>Можно ли использовать реальные данные пациентов?</summary><p>Для демо безопаснее использовать демо-данные или обезличенные данные. Production-запуск требует правовой и технической подготовки.</p></details>
-          <details><summary>Что входит в первый MVP?</summary><p>Пациент, визит, аудио/диктовка, AI-черновик, МКБ-10, документы и ручное утверждение врачом.</p></details>
-          <details><summary>Чем это отличается от диктовки?</summary><p>Обычная диктовка превращает речь в текст. ClinFlow AI выстраивает полный workflow приема.</p></details>
-          <details><summary>Можно ли адаптировать под специальности?</summary><p>Да. Для этого нужен шаблонизатор документов и профили клинических сценариев.</p></details>
+          <details><summary>Чем это отличается от диктовки?</summary><p>Обычная диктовка превращает речь в текст. ClinFlow AI строит полный workflow: note, МКБ-10, документы, утверждение и audit trail.</p></details>
         </div>
       </div>
     </section>
 
     <section class="section reveal">
-      <div class="container">
-        <div class="final-cta">
-          <div class="kicker">ClinFlow AI</div>
-          <h2>Соберите первый AI-workflow приема врача</h2>
-          <p>Начните с одного сценария и одного типа приема: покажите клинике, как AI может сократить бумажную нагрузку без потери врачебного контроля.</p>
-          <a class="btn btn-primary" href="#pilot">Начать с MVP</a>
-        </div>
-      </div>
+      <div class="container final"><div class="kicker">ClinFlow AI</div><h2>Соберите первый AI-workflow приема врача</h2><p>Начните с одного сценария и одного типа приема: покажите клинике, как AI может сократить бумажную нагрузку без потери врачебного контроля.</p><a class="btn btn-green" href="api-demo.html">Открыть рабочее демо</a></div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div><strong>© 2026 ClinFlow AI.</strong> AI clinical workflow assistant.</div>
-      <div>eastside.study@gmail.com</div>
-    </div>
-  </footer>
+  <footer class="footer"><div class="container footer-inner"><div><strong>© 2026 ClinFlow AI.</strong> AI clinical workflow assistant.</div><div>eastside.study@gmail.com</div></div></footer>
+  <div class="floating-demo"><a class="btn btn-dark" href="api-demo.html">Открыть рабочее демо</a></div>
 
   <script>
-    const workflowContent = {
-      pre: `
-        <h3>Pre-Visit summary</h3>
-        <p>Врач видит контекст пациента до начала приема.</p>
-        <div class="workflow-box"><div class="note-row"><b>Пациент</b><span>Иванов И.И., 39 лет. Повторный прием.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>Жалобы</b><span>Кашель, температура, слабость, боль в горле.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>История</b><span>Предыдущий визит 3 месяца назад. Данные доступны врачу для проверки.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>Pre-charting</b><span>Врач может заранее надиктовать вопросы и план осмотра.</span></div></div>
-      `,
-      encounter: `
-        <h3>Encounter AI note</h3>
-        <p>Система превращает речь в structured encounter note.</p>
-        <div class="soundwave">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-        </div>
-        <div class="workflow-box"><div class="note-row"><b>Жалобы</b><span>Кашель, температура до 38.2, слабость.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>Анамнез</b><span>Симптомы около трех дней. Одышки нет.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>МКБ-10</b><span>J06.9 — черновая подсказка, требует проверки врачом.</span></div></div>
-      `,
-      post: `
-        <h3>Post-Visit documents</h3>
-        <p>После приема врач получает документы и инструкцию пациенту.</p>
-        <div class="workflow-box"><div class="note-row"><b>Инструкция</b><span>Контролировать температуру, соблюдать рекомендации врача, обратиться при ухудшении.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>Справка</b><span>Черновик справки формируется по шаблону клиники.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>Направление</b><span>Черновик направления создается только при решении врача.</span></div></div>
-        <div class="workflow-box"><div class="note-row"><b>Статус</b><span>AI ничего не подписывает автоматически. Врач утверждает финальную версию.</span></div></div>
-      `
-    };
-
-    const workflowPanel = document.getElementById("workflowPanel");
-    const tabs = document.querySelectorAll(".tab");
-
-    function setWorkflow(tabName) {
-      workflowPanel.innerHTML = workflowContent[tabName];
-      tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.tab === tabName));
-    }
-
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => setWorkflow(tab.dataset.tab));
-    });
-
-    setWorkflow("pre");
-
-    const demoStatus = document.getElementById("demoStatus");
-    const demoBody = document.getElementById("demoBody");
-
-    document.getElementById("generateDemo").addEventListener("click", function () {
-      demoStatus.textContent = "ожидает утверждения врачом";
-
-      demoBody.innerHTML = `
-        <div class="demo-section">
-          <h4>1. Исходная речь врача</h4>
-          <p>Пациент жалуется на кашель, температуру до 38.2, слабость в течение трех дней. Отмечает боль в горле. Одышки нет. Аллергии отрицает.</p>
-        </div>
-        <div class="demo-section">
-          <h4>2. AI-черновик</h4>
-          <ul>
-            <li><b>Жалобы:</b> кашель, температура, слабость, боль в горле.</li>
-            <li><b>Анамнез:</b> симптомы около трех дней, одышки нет.</li>
-            <li><b>Оценка:</b> черновая гипотеза острого респираторного заболевания.</li>
-            <li><b>План:</b> осмотр, контроль состояния, рекомендации врача.</li>
-          </ul>
-        </div>
-        <div class="demo-section">
-          <h4>3. МКБ-10</h4>
-          <p>J06.9 — острая инфекция верхних дыхательных путей неуточненная. Черновая подсказка, требует проверки врачом.</p>
-        </div>
-        <div class="demo-section">
-          <h4>4. Инструкция пациенту</h4>
-          <p>Соблюдайте рекомендации врача, контролируйте температуру, пейте достаточно жидкости. При ухудшении состояния обратитесь за медицинской помощью.</p>
-        </div>
-        <div class="demo-section">
-          <h4>5. Human approval</h4>
-          <p id="approvalText">Статус: ожидает утверждения врачом.</p>
-          <button class="btn btn-primary" onclick="approveDemo()" type="button">Утвердить врачом</button>
-        </div>
-      `;
-    });
-
-    document.getElementById("resetDemo").addEventListener("click", function () {
-      demoStatus.textContent = "ожидает генерации";
-      demoBody.innerHTML = `
-        <div class="demo-section">
-          <p>Здесь появится исходная речь, AI-черновик, МКБ-10, инструкция пациенту и кнопка утверждения врачом.</p>
-        </div>
-      `;
-    });
-
-    function approveDemo() {
-      demoStatus.textContent = "финальная версия утверждена врачом";
-      const approvalText = document.getElementById("approvalText");
-      if (approvalText) {
-        approvalText.textContent = "Статус: финальная версия утверждена врачом. Документ готов к сохранению в карте пациента.";
-      }
-    }
-
     function sendDemoRequest(event) {
       event.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const contact = document.getElementById('contact').value.trim();
+      const interest = document.getElementById('interest').value;
+      const message = document.getElementById('message').value.trim();
+      const email = 'eastside.study@gmail.com';
+      const subject = encodeURIComponent('Заявка на демо ClinFlow AI');
+      const body = encodeURIComponent(`Здравствуйте! Хочу обсудить ClinFlow AI.
 
-      const name = document.getElementById("name").value.trim();
-      const contact = document.getElementById("contact").value.trim();
-      const interest = document.getElementById("interest").value;
-      const message = document.getElementById("message").value.trim();
-      const email = "eastside.study@gmail.com";
-
-      const subject = encodeURIComponent("Заявка на демо ClinFlow AI");
-      const body = encodeURIComponent(
-        `Здравствуйте! Хочу обсудить ClinFlow AI.\n\nИмя / клиника: ${name}\nКонтакт: ${contact}\nИнтерес: ${interest}\nКомментарий: ${message || "—"}`
-      );
-
+Имя / клиника: ${name}
+Контакт: ${contact}
+Интерес: ${interest}
+Комментарий: ${message || '—'}`);
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-
-      const formStatus = document.getElementById("formStatus");
-      formStatus.textContent = "Откроется почтовое приложение. Если оно не открылось, напишите: " + email;
-      formStatus.style.color = "#44e6a0";
+      const formStatus = document.getElementById('formStatus');
+      formStatus.textContent = 'Откроется почтовое приложение. Если оно не открылось, напишите: ' + email;
+      formStatus.style.color = '#0b7c50';
     }
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add("visible");
+        if (entry.isIntersecting) entry.target.classList.add('visible');
       });
     }, { threshold: 0.12 });
 
-    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   </script>
-  <a 
-  href="api-demo.html" 
-  style="
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 9999;
-    background: linear-gradient(135deg, #37d6ff, #44e6a0);
-    color: #06111e;
-    padding: 16px 22px;
-    border-radius: 999px;
-    font-family: Arial, sans-serif;
-    font-weight: 900;
-    text-decoration: none;
-    box-shadow: 0 18px 50px rgba(55,214,255,.35);
-  "
->
-  Открыть рабочее демо
-</a>
 </body>
 </html>
