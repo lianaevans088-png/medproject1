@@ -455,44 +455,97 @@
 
     .screen-line b { color: #82dcff; }
 
-    .team-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
-
-    .person {
-      border: 1px solid var(--line);
-      border-radius: 26px;
-      padding: 18px;
-      background: var(--paper);
-      box-shadow: 0 12px 34px rgba(15,23,42,.06);
-      transition: .22s ease;
+    .team-section {
+      padding: 100px 0;
+      background: #f6f3ec;
     }
 
-    .person:hover { transform: translateY(-3px); box-shadow: 0 24px 70px rgba(15,23,42,.12); }
+    .team-header {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 40px;
+      align-items: start;
+      margin-bottom: 54px;
+    }
 
-    .avatar {
-      width: 100%;
-      height: 210px;
-      border-radius: 24px;
-      display: block;
-      background: var(--dark);
-      margin-bottom: 18px;
+    .team-kicker {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 16px;
+    }
+
+    .team-title {
+      margin: 0;
+      font-size: clamp(42px, 6vw, 72px);
+      line-height: .95;
+      letter-spacing: -.07em;
+      color: #111;
+      font-weight: 950;
+      max-width: 720px;
+    }
+
+    .team-subtitle {
+      margin: 56px 0 0;
+      font-size: 18px;
+      line-height: 1.55;
+      color: #6f6b67;
+      max-width: 520px;
+    }
+
+    .team-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 38px 62px;
+    }
+
+    .team-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .team-photo {
+      width: 150px;
+      height: 150px;
+      min-width: 150px;
+      border-radius: 32px;
       overflow: hidden;
-      position: relative;
-      box-shadow: 0 18px 42px rgba(15,23,42,.16);
+      background: #d9d6cf;
+      flex-shrink: 0;
+      box-shadow: 0 18px 44px rgba(15,23,42,.12);
     }
 
-    .avatar img {
+    .team-photo img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: center top;
       display: block;
-      position: relative;
-      z-index: 2;
+      object-fit: cover;
+      object-position: center;
     }
 
-    .person h3 { margin: 0 0 7px; font-size: 19px; line-height: 1.16; letter-spacing: -.04em; }
-    .role { display: block; color: var(--orange); font-weight: 950; font-size: 13px; line-height: 1.35; margin-bottom: 10px; }
-    .person p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .team-info {
+      padding-top: 7px;
+    }
+
+    .team-name {
+      margin: 0 0 10px;
+      font-size: 26px;
+      line-height: 1.12;
+      font-weight: 500;
+      color: #111;
+      letter-spacing: -.035em;
+    }
+
+    .team-role {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.42;
+      color: #b7b4c8;
+      font-weight: 400;
+    }
 
     .pilot-card {
       border-radius: 38px;
@@ -535,7 +588,10 @@
 
     @media (max-width: 1080px) {
       .hero-grid, .inside-grid, .why-grid, .demo-strip, .pilot-card { grid-template-columns: 1fr; }
-      .team-grid, .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-header { grid-template-columns: 1fr; gap: 18px; }
+      .team-subtitle { margin-top: 0; max-width: 100%; }
+      .team-list { grid-template-columns: 1fr; gap: 30px; }
       .pilot-photo { min-height: 320px; }
     }
 
@@ -552,7 +608,12 @@
       .hero { padding-top: 48px; }
       h1 { font-size: 48px; }
       .hero-photo, .hero-photo img { min-height: 680px; }
-      .stats-grid, .team-grid, .form-grid { grid-template-columns: 1fr; }
+      .stats-grid, .form-grid { grid-template-columns: 1fr; }
+      .team-section { padding: 70px 0; }
+      .team-item { gap: 18px; }
+      .team-photo { width: 112px; height: 112px; min-width: 112px; border-radius: 26px; }
+      .team-name { font-size: 22px; }
+      .team-role { font-size: 17px; }
       .btn { width: 100%; }
       .floating-demo { left: 12px; right: 12px; }
       .floating-demo .btn { width: 100%; }
@@ -697,29 +758,40 @@
       </div>
     </section>
 
-    <section class="section reveal" id="team">
+    <section class="team-section reveal" id="team">
       <div class="container">
-        <div class="section-head"><div><div class="kicker">Команда</div><h2>Основатели и запусковая команда</h2></div><p class="section-desc">Проект соединяет медицинскую логику, архитектуру продукта, технологическую реализацию, продажи и венчурное масштабирование.</p></div>
-        <div class="team-grid">
-          <article class="person">
-            <div class="avatar"><img src="https://lianaevans088-png.github.io/medproject1/liana.jpg?v=3" alt="Лиана Мирзабалаева"></div>
-            <h3>Лиана Мирзабалаева</h3><span class="role">Основатель проекта</span><p>Формирует продуктовую визию, медицинский сценарий применения и стратегию развития платформы.</p>
+        <div class="team-header">
+          <div>
+            <div class="team-kicker">Команда</div>
+            <h2 class="team-title">Основатели и<br>запусковая команда</h2>
+          </div>
+          <p class="team-subtitle">Проект соединяет медицинскую логику, архитектуру продукта, технологическую реализацию, продажи и венчурное масштабирование.</p>
+        </div>
+
+        <div class="team-list">
+          <article class="team-item">
+            <div class="team-photo"><img src="https://lianaevans088-png.github.io/medproject1/liana.jpg?v=5" alt="Лиана Мирзабалаева"></div>
+            <div class="team-info"><h3 class="team-name">Лиана Мирзабалаева</h3><p class="team-role">Основатель проекта</p></div>
           </article>
-          <article class="person">
-            <div class="avatar"><img src="https://lianaevans088-png.github.io/medproject1/anna.jpg?v=3" alt="Анна Зуенко"></div>
-            <h3>Анна Зуенко</h3><span class="role">Сооснователь · архитектор</span><p>Отвечает за архитектурную логику платформы, структуру пользовательских сценариев и системное проектирование.</p>
+
+          <article class="team-item">
+            <div class="team-photo"><img src="https://lianaevans088-png.github.io/medproject1/anna.jpg?v=5" alt="Анна Зуенко"></div>
+            <div class="team-info"><h3 class="team-name">Анна Зуенко</h3><p class="team-role">Сооснователь | Архитектор</p></div>
           </article>
-          <article class="person">
-            <div class="avatar"><img src="https://lianaevans088-png.github.io/medproject1/vitaliy.jpg?v=3" alt="Виталий Ванеев"></div>
-            <h3>Виталий Ванеев</h3><span class="role">Сооснователь · венчурный инвестор</span><p>Отвечает за венчурную стратегию, партнерства, упаковку проекта и масштабирование.</p>
+
+          <article class="team-item">
+            <div class="team-photo"><img src="https://lianaevans088-png.github.io/medproject1/vitaliy.jpg?v=5" alt="Виталий Ванеев"></div>
+            <div class="team-info"><h3 class="team-name">Виталий Ванеев</h3><p class="team-role">Сооснователь | Венчурный инвестор</p></div>
           </article>
-          <article class="person">
-            <div class="avatar"><img src="https://lianaevans088-png.github.io/medproject1/daniil.jpg?v=3" alt="Даниил Демкин"></div>
-            <h3>Даниил Демкин</h3><span class="role">Технический директор</span><p>Отвечает за MVP, техническую архитектуру, backend, frontend и интеграционные слои.</p>
+
+          <article class="team-item">
+            <div class="team-photo"><img src="https://lianaevans088-png.github.io/medproject1/daniil.jpg?v=5" alt="Даниил Демкин"></div>
+            <div class="team-info"><h3 class="team-name">Даниил Демкин</h3><p class="team-role">Технический директор</p></div>
           </article>
-          <article class="person">
-            <div class="avatar"><img src="https://lianaevans088-png.github.io/medproject1/yulia.jpg?v=3" alt="Юлия Евгеньева"></div>
-            <h3>Юлия Евгеньева</h3><span class="role">Коммерческий директор</span><p>Отвечает за продажи, пилоты с клиниками, коммерческую модель и выход продукта на рынок.</p>
+
+          <article class="team-item">
+            <div class="team-photo"><img src="https://lianaevans088-png.github.io/medproject1/yulia.jpg?v=5" alt="Юлия Евгеньева"></div>
+            <div class="team-info"><h3 class="team-name">Юлия Евгеньева</h3><p class="team-role">Коммерческий директор</p></div>
           </article>
         </div>
       </div>
@@ -779,7 +851,12 @@
       const message = document.getElementById('message').value.trim();
       const email = 'eastside.study@gmail.com';
       const subject = encodeURIComponent('Заявка на демо ClinFlow AI');
-      const body = encodeURIComponent(`Здравствуйте! Хочу обсудить ClinFlow AI.\n\nИмя / клиника: ${name}\nКонтакт: ${contact}\nИнтерес: ${interest}\nКомментарий: ${message || '—'}`);
+      const body = encodeURIComponent(`Здравствуйте! Хочу обсудить ClinFlow AI.
+
+Имя / клиника: ${name}
+Контакт: ${contact}
+Интерес: ${interest}
+Комментарий: ${message || '—'}`);
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
       const formStatus = document.getElementById('formStatus');
       formStatus.textContent = 'Откроется почтовое приложение. Если оно не открылось, напишите: ' + email;
