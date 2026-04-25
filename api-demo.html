@@ -752,6 +752,7 @@
     function renderDemo(data) {
       const aiDraft = data.ai_draft || {};
       const diagnosis = Array.isArray(data.icd10_suggestions) ? data.icd10_suggestions[0] : null;
+      const visitId = data.visit_id || null;
 
       resultArea.innerHTML = `
         <div class="section-box">
@@ -783,7 +784,8 @@
 
         <div class="section-box">
           <h3>5. Human-in-the-loop</h3>
-          <p id="approvalText">Статус: AI-черновик ожидает ручного утверждения врачом.</p>
+          <p><b>Visit ID:</b> ${visitId || "backend не вернул visit_id"}</p>
+          <p id="approvalText">Статус: AI-черновик сохранен в базе и ожидает ручного утверждения врачом.</p>
           <span class="badge warn">AI draft · не финальный документ</span>
           <button class="json-toggle" onclick="showRawJson(this, 'demoJson')">Показать raw JSON</button>
           <pre id="demoJson">${JSON.stringify(data, null, 2)}</pre>
@@ -824,23 +826,65 @@
       }
     }
 
-    function approveVisit() {
+    async function approveVisit() {
       if (!lastDemoData) {
         showToast("Сначала сгенерируйте AI-прием.");
         return;
       }
 
-      approvalBadge.textContent = "Финальная версия утверждена врачом";
-      approvalBadge.className = "badge ok";
-      visitStatusText.textContent = "Утвержден врачом";
-      setSteps(3);
-
-      const approvalText = document.getElementById("approvalText");
-      if (approvalText) {
-        approvalText.textContent = "Статус: финальная версия утверждена врачом. Документ готов к сохранению в карте пациента.";
+      if (!lastDemoData.visit_id) {
+        showToast("Backend не вернул visit_id. Проверьте, что backend обновлен до версии с базой данных.");
+        return;
       }
 
-      showToast("Финальная версия утверждена врачом.");
+      approvalBadge.textContent = "Отправляю утверждение в backend...";
+      approvalBadge.className = "badge warn";
+
+      try {
+        const response = await fetch(`${API_URL}/visits/${lastDemoData.visit_id}/approve`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            approved_by: "demo_doctor"
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Backend вернул ошибку: ${response.status}`);
+        }
+
+        const approvalResult = await response.json();
+
+        approvalBadge.textContent = "Финальная версия утверждена врачом";
+        approvalBadge.className = "badge ok";
+        visitStatusText.textContent = "Утвержден врачом и сохранен в базе";
+        setSteps(3);
+
+        const approvalText = document.getElementById("approvalText");
+        if (approvalText) {
+          approvalText.textContent = `Статус: ${approvalResult.message || "финальная версия утверждена врачом"}. Visit ID ${approvalResult.visit_id} обновлен в базе данных.`;
+        }
+
+        const resultBox = document.createElement("div");
+        resultBox.className = "section-box";
+        resultBox.innerHTML = `
+          <h3>6. Ответ backend после утверждения</h3>
+          <p><b>Visit ID:</b> ${approvalResult.visit_id}</p>
+          <p><b>Approved:</b> ${approvalResult.approved}</p>
+          <p><b>Status:</b> ${approvalResult.status}</p>
+          <button class="json-toggle" onclick="showRawJson(this, 'approvalJson')">Показать raw JSON</button>
+          <pre id="approvalJson">${JSON.stringify(approvalResult, null, 2)}</pre>
+        `;
+        resultArea.appendChild(resultBox);
+
+        showToast("Утверждение отправлено в backend и сохранено в базе.");
+      } catch (error) {
+        approvalBadge.textContent = "Ошибка утверждения";
+        approvalBadge.className = "badge warn";
+        showToast("Ошибка утверждения визита: " + error.message);
+      }
     }
 
     function resetDemo() {
